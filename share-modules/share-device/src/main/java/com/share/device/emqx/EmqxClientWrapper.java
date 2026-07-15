@@ -36,8 +36,8 @@ public class EmqxClientWrapper {
             // 设置回调
             client.setCallback(onMessageCallback);
 
-            // 建立连接
-            connect();
+            // 建立连接（暂时注释，未启动EMQX）
+            // connect();
 
         } catch (MqttException e) {
             log.info("MqttClient创建失败");
