@@ -28,40 +28,32 @@ public class CabinetController extends BaseController {
         return success(cabinetService.searchNoUseList(keyword));
     }
 
-    //删除
-    @Operation(summary = "删除")
-    @DeleteMapping("{ids}")
-    public AjaxResult delete(@PathVariable Long[] ids) {
-        boolean flag = cabinetService.removeBatchByIds(Arrays.asList(ids));
-        AjaxResult ajaxResult = toAjax(flag);
-        return ajaxResult;
+    @Operation(summary = "获取充电宝柜机详细信息")
+    @GetMapping(value = "/{id}")
+    public AjaxResult getInfo(@PathVariable("id") Long id)
+    {
+        return success(cabinetService.getById(id));
     }
 
-    //修改
-    @Operation(summary = "修改")
-    @PutMapping
-    public AjaxResult update(@RequestBody Cabinet cabinet) {
-        boolean flag = cabinetService.updateById(cabinet);
-        AjaxResult ajaxResult = toAjax(flag);
-        return ajaxResult;
-    }
-
-    //添加
-    @Operation(summary = "添加")
+    @Operation(summary = "新增充电宝柜机")
     @PostMapping
-    public AjaxResult add(@RequestBody Cabinet cabinet) {
-        boolean flag = cabinetService.save(cabinet);
-        AjaxResult ajaxResult = toAjax(flag);
-        return ajaxResult;
+    public AjaxResult add(@RequestBody Cabinet cabinet)
+    {
+        return toAjax(cabinetService.saveCabinet(cabinet));
     }
 
-    //根据id查询详情
-    @Operation(summary = "根据id查询详情")
-    @GetMapping("{id}")
-    public AjaxResult getInfo(@PathVariable Long id) {
-        Cabinet cabinet = cabinetService.getById(id);
-        AjaxResult ajaxResult = success(cabinet);
-        return ajaxResult;
+    @Operation(summary = "修改充电宝柜机")
+    @PutMapping
+    public AjaxResult edit(@RequestBody Cabinet cabinet)
+    {
+        return toAjax(cabinetService.updateCabinet(cabinet));
+    }
+
+    @Operation(summary = "删除充电宝柜机")
+    @DeleteMapping("/{ids}")
+    public AjaxResult remove(@PathVariable Long[] ids)
+    {
+        return toAjax(cabinetService.removeBatchByIds(Arrays.asList(ids)));
     }
 
     //分页查询
@@ -76,5 +68,11 @@ public class CabinetController extends BaseController {
         return dataTable;
     }
 
+    @Operation(summary = "获取充电宝柜机全部详细信息")
+    @GetMapping(value = "/getAllInfo/{id}")
+    public AjaxResult getAllInfo(@PathVariable("id") Long id)
+    {
+        return success(cabinetService.getAllInfo(id));
+    }
 
 }

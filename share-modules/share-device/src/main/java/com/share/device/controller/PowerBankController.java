@@ -18,23 +18,21 @@ import java.util.List;
 @Tag(name = "充电宝接口管理")
 @RestController
 @RequestMapping("/powerBank")
-public class PowerBankController extends BaseController {
-
+public class PowerBankController extends BaseController
+{
     @Autowired
     private IPowerBankService powerBankService;
 
-    //分页查询
     @Operation(summary = "查询充电宝列表")
     @GetMapping("/list")
-    public TableDataInfo list(PowerBank powerBank) {
-        //设置分页参数
+    public TableDataInfo list(PowerBank powerBank)
+    {
         startPage();
-        //调用service
-        List<PowerBank> list = powerBankService.selectListPowerBank(powerBank);
+        List<PowerBank> list = powerBankService.selectPowerBankList(powerBank);
         return getDataTable(list);
     }
 
-    //根据id查询详情数据
+
     @Operation(summary = "获取充电宝详细信息")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -42,33 +40,24 @@ public class PowerBankController extends BaseController {
         return success(powerBankService.getById(id));
     }
 
-    //添加
-    @Operation(summary = "添加")
+    @Operation(summary = "新增充电宝")
     @PostMapping
-    public AjaxResult add(@RequestBody PowerBank powerBank) {
-        //1 设置相关数据值
-        powerBank.setCreateBy(SecurityUtils.getUsername()); //添加人 当前后台系统登录人名称
+    public AjaxResult add(@RequestBody PowerBank powerBank)
+    {
+        powerBank.setCreateBy(SecurityUtils.getUsername());
         powerBank.setCreateTime(new Date());
-        powerBank.setUpdateTime(new Date());
-
-        //2 调用service的方法实现添加
-        int rows = powerBankService.savePowerBank(powerBank);
-        return toAjax(rows);
+        return toAjax(powerBankService.savePowerBank(powerBank));
     }
 
-    //修改
-    @Operation(summary = "修改")
+    @Operation(summary = "修改充电宝")
     @PutMapping
-    public AjaxResult update(@RequestBody PowerBank powerBank) {
-        //设置相关数据
+    public AjaxResult edit(@RequestBody PowerBank powerBank)
+    {
         powerBank.setUpdateBy(SecurityUtils.getUsername());
         powerBank.setUpdateTime(new Date());
-        //调用service的方法实现
-        int rows = powerBankService.updatePowerBank(powerBank);
-        return toAjax(rows);
+        return toAjax(powerBankService.updatePowerBank(powerBank));
     }
 
-    //删除
     @Operation(summary = "删除充电宝")
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)

@@ -4,19 +4,14 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.share.device.mapper.StationMapper">
 
-    <resultMap type="com.share.device.domain.Station" id="StationResult" autoMapping="true">
+    <resultMap type="Station" id="StationResult" autoMapping="true">
     </resultMap>
 
     <sql id="selectStationVo">
-        select id, name, image_url, business_hours,
-               longitude, latitude, province_code, city_code,
-               district_code,address, full_address, head_name,
-               head_phone, cabinet_id, fee_rule_id, status, create_time,
-               create_by, update_time, update_by, del_flag, remark
-        from station
+        select id, name, image_url, business_hours, longitude, latitude, province_code, city_code, district_code,address, full_address, head_name, head_phone, cabinet_id, fee_rule_id, status, create_time, create_by, update_time, update_by, del_flag, remark from station
     </sql>
 
-    <select id="selectStationList" resultMap="StationResult">
+    <select id="selectStationList" parameterType="Station" resultMap="StationResult">
         <include refid="selectStationVo"/>
         <where>
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>

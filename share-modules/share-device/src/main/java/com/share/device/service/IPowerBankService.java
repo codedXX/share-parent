@@ -5,15 +5,14 @@ import com.share.device.domain.PowerBank;
 
 import java.util.List;
 
-public interface IPowerBankService extends IService<PowerBank> {
-    //分页查询
-    List<PowerBank> selectListPowerBank(PowerBank powerBank);
+public interface IPowerBankService extends IService<PowerBank>
+{
 
-    ////添加
-    int savePowerBank(PowerBank powerBank);
-
-    //修改
-    int updatePowerBank(PowerBank powerBank);
+    List<PowerBank> selectPowerBankList(PowerBank powerBank);
 
     PowerBank getByPowerBankNo(String powerBankNo);
+
+    int savePowerBank(PowerBank powerBank);
+
+    int updatePowerBank(PowerBank powerBank);
 }

@@ -12,52 +12,47 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PowerBankServiceImpl extends ServiceImpl<PowerBankMapper, PowerBank>
-        implements IPowerBankService {
-
+public class PowerBankServiceImpl extends ServiceImpl<PowerBankMapper, PowerBank> implements IPowerBankService
+{
     @Autowired
     private PowerBankMapper powerBankMapper;
 
-    //分页查询
     @Override
-    public List<PowerBank> selectListPowerBank(PowerBank powerBank) {
-        return powerBankMapper.selectListPowerBank(powerBank);
-    }
-
-    //添加
-    @Override
-    public int savePowerBank(PowerBank powerBank) {
-        //1 判断powerBankNo是否存在，如果存在不进行添加
-        String powerBankNo = powerBank.getPowerBankNo();
-        //封装条件
-        LambdaQueryWrapper<PowerBank> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(PowerBank::getPowerBankNo,powerBankNo);
-        Long count = powerBankMapper.selectCount(wrapper);
-        //判断
-        if(count > 0) {//如果存在不进行添加
-            throw new ServiceException("充电宝编号已经存在");
-        }
-        //不存在做添加
-        int rows = powerBankMapper.insert(powerBank);
-        return rows;
-    }
-
-    //修改
-    @Override
-    public int updatePowerBank(PowerBank powerBank) {
-        //1 判断状态是0才进行修改
-        Long id = powerBank.getId();
-        PowerBank oldPowerBank = powerBankMapper.selectById(id);
-        if(oldPowerBank != null && "0".equals(oldPowerBank.getStatus())) {
-
-            int rows = powerBankMapper.updateById(powerBank);
-            return rows;
-        }
-        return 0;
+    public List<PowerBank> selectPowerBankList(PowerBank powerBank)
+    {
+        return powerBankMapper.selectPowerBankList(powerBank);
     }
 
     @Override
     public PowerBank getByPowerBankNo(String powerBankNo) {
         return powerBankMapper.selectOne(new LambdaQueryWrapper<PowerBank>().eq(PowerBank::getPowerBankNo, powerBankNo));
+    }
+
+    @Override
+    public int savePowerBank(PowerBank powerBank) {
+        long count = this.count(new LambdaQueryWrapper<PowerBank>().eq(PowerBank::getPowerBankNo, powerBank.getPowerBankNo()));
+        if (count > 0) {
+            throw new ServiceException("该充电宝编号已存在");
+        }
+        powerBankMapper.insert(powerBank);
+        return 1;
+    }
+
+    @Override
+    public int updatePowerBank(PowerBank powerBank) {
+        // 获取旧的数据
+        PowerBank oldPowerBank = this.getById(powerBank.getId());
+        if (null != oldPowerBank && !"0".equals(oldPowerBank.getStatus())) {
+            throw new ServiceException("该充电宝已投放，无法修改");
+        }
+        //判断柜机编号是否改变
+        if (!oldPowerBank.getPowerBankNo().equals(powerBank.getPowerBankNo())) {
+            long count = this.count(new LambdaQueryWrapper<PowerBank>().eq(PowerBank::getPowerBankNo, powerBank.getPowerBankNo()));
+            if (count > 0) {
+                throw new ServiceException("该充电宝编号已存在");
+            }
+        }
+        powerBankMapper.updateById(powerBank);
+        return 1;
     }
 }

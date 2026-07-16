@@ -8,4 +8,6 @@ public interface StationLocationRepository
 
     StationLocation getByStationId(Long id);
 
+    void deleteByStationId(Long stationId);
+
 }
