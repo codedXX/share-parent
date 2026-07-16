@@ -3,6 +3,8 @@ package com.share.rules.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.share.rule.domain.FeeRule;
 
+import java.util.List;
+
 /**
  * 费用规则Mapper接口
  *
@@ -11,6 +13,6 @@ import com.share.rule.domain.FeeRule;
  */
 public interface FeeRuleMapper extends BaseMapper<FeeRule>
 {
-
+    public List<FeeRule> selectFeeRuleList(FeeRule feeRule);
 }
 
