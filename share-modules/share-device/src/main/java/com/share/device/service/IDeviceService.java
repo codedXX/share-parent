@@ -13,4 +13,6 @@ public interface IDeviceService {
 
     ////扫码充电接口
     ScanChargeVo scanCharge(String cabinetNo);
+
+    List<StationVo> nearbyStation(String latitude, String longitude, Integer radius);
 }

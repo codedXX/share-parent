@@ -43,10 +43,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+/**
+ * 告诉编译器忽略指定类型的警告，不会报错，只是不显示黄色警告。
+ * - unchecked：忽略未检查的类型转换警告，比如强转泛型集合
+ * - rawtypes：忽略使用原始类型（不带泛型）的警告，比如 List list = new ArrayList();
+ * 通常是因为代码里用了旧的 API 或泛型处理不太规范，但开发者确认没问题，就手动压制警告。
+ */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class DeviceServiceImpl implements IDeviceService {
 
@@ -137,6 +144,57 @@ public class DeviceServiceImpl implements IDeviceService {
         });
         return stationVoList;
     }
+
+
+    @Override
+    public List<StationVo> nearbyStation(String latitude, String longitude, Integer radius) {
+        //坐标，确定中心点
+        // GeoJsonPoint(double x, double y) x 表示经度，y 表示纬度。
+        GeoJsonPoint geoJsonPoint = new GeoJsonPoint(Double.parseDouble(longitude), Double.parseDouble(latitude));
+        //画圈的半径,50km范围
+        Distance d = new Distance(radius, Metrics.KILOMETERS);
+        //画了一个圆圈
+        Circle circle = new Circle(geoJsonPoint, d);
+        //条件排除自己
+        Query query = Query.query(Criteria.where("location").withinSphere(circle));
+        List<StationLocation> stationLocationList = this.mongoTemplate.find(query, StationLocation.class);
+        if (CollectionUtils.isEmpty(stationLocationList)) return null;
+
+        //组装数据
+        List<Long> stationIdList =stationLocationList.stream().map(StationLocation::getStationId).collect(Collectors.toList());
+        //获取站点列表
+        List<Station> stationList = stationService.list(new LambdaQueryWrapper<Station>().in(Station::getId, stationIdList).isNotNull(Station::getCabinetId));
+
+        //获取柜机id列表
+        List<Long> cabinetIdList = stationList.stream().map(Station::getCabinetId).collect(Collectors.toList());
+        //获取柜机id与柜机信息Map
+        Map<Long, Cabinet> cabinetIdToCabinetMap = cabinetService.listByIds(cabinetIdList).stream().collect(Collectors.toMap(Cabinet::getId, Cabinet -> Cabinet));
+
+        List<StationVo> stationVoList = new ArrayList<>();
+        stationList.forEach(item -> {
+            StationVo stationVo = new StationVo();
+            BeanUtils.copyProperties(item, stationVo);
+
+            // 获取柜机信息
+            Cabinet cabinet = cabinetIdToCabinetMap.get(item.getCabinetId());
+            //可用充电宝数量大于0，可借用
+            if(cabinet.getAvailableNum() > 0) {
+                stationVo.setIsUsable("1");
+            } else {
+                stationVo.setIsUsable("0");
+            }
+            // 获取空闲插槽数量大于0，可归还
+            if (cabinet.getFreeSlots() > 0) {
+                stationVo.setIsReturn("1");
+            } else {
+                stationVo.setIsReturn("0");
+            }
+
+            stationVoList.add(stationVo);
+        });
+        return stationVoList;
+    }
+
 
     //门店详情
     @Override
