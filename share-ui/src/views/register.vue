@@ -1,7 +1,7 @@
 <template>
   <div class="register">
     <el-form ref="registerRef" :model="registerForm" :rules="registerRules" class="register-form">
-      <h3 class="title">共享充电宝后台管理系统</h3>
+      <h3 class="title">尚品甄选后台管理系统</h3>
       <el-form-item prop="username">
         <el-input
           v-model="registerForm.username"
