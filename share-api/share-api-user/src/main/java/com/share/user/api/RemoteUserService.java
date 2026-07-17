@@ -27,7 +27,7 @@ public interface RemoteUserService
     @GetMapping(value = "/userInfo/getUserInfo/{id}")
     public R<UserInfo> getInfo(@PathVariable("id") Long id);
 
-    /////////////
+
     @GetMapping("/userInfo/getUserCount")
     public R getUserCount();
 }

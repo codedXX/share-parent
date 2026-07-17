@@ -36,6 +36,7 @@ public class CabinetTypeController extends BaseController {
     // 根据id删除某个数据，或者根据多个id删除多条记录
     // [1,2,3]
     @Operation(summary = "删除")
+    @RequiresPermissions("device:cabinetType:remove")
     @DeleteMapping("/{ids}")
     public AjaxResult delete(@PathVariable Long[] ids) {
         boolean is_Success = cabinetTypeService.removeBatchByIds(Arrays.asList(ids));
@@ -45,6 +46,7 @@ public class CabinetTypeController extends BaseController {
 
     //修改
     @Operation(summary = "修改")
+    @RequiresPermissions("device:cabinetType:edit")
     @PutMapping
     public AjaxResult update(@RequestBody @Validated CabinetType cabinetType) {
         boolean is_Success = cabinetTypeService.updateById(cabinetType);
@@ -54,7 +56,7 @@ public class CabinetTypeController extends BaseController {
 
     //添加
     @Operation(summary = "添加")
-//    @RequiresPermissions("device:cabinetType:add")
+    @RequiresPermissions("device:cabinetType:add")
     @PostMapping
     public AjaxResult add(@RequestBody @Validated CabinetType cabinetType) {
         boolean is_Success = cabinetTypeService.save(cabinetType);
@@ -65,6 +67,7 @@ public class CabinetTypeController extends BaseController {
 
     //根据id查询详情
     @Operation(summary = "根据id查询详情")
+    @RequiresPermissions("device:cabinetType:query")
     @GetMapping("{id}")
     public AjaxResult getCabinetType(@PathVariable Long id) {
         CabinetType cabinetType = cabinetTypeService.getById(id);
@@ -75,6 +78,7 @@ public class CabinetTypeController extends BaseController {
     //分页查询
     @Operation(summary = "柜机类型分页查询")
     @Log(title = "柜机类型查询",businessType= BusinessType.OTHER)
+    @RequiresPermissions("device:cabinetType:list")
     @GetMapping("/list")
     public TableDataInfo list(CabinetType cabinetType) {
         //封装分页参数数据

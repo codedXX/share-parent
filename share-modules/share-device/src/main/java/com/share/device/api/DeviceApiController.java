@@ -7,6 +7,7 @@ import com.share.common.security.annotation.RequiresLogin;
 import com.share.device.domain.ScanChargeVo;
 import com.share.device.domain.StationVo;
 import com.share.device.service.IDeviceService;
+import com.share.device.service.IStationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class DeviceApiController extends BaseController {
 
     @Autowired
     private IDeviceService deviceService;
+    @Autowired
+    private IStationService stationService;
 
     //扫码充电接口
     @Operation(summary = "扫码充电")
@@ -38,12 +41,15 @@ public class DeviceApiController extends BaseController {
     @Operation(summary = "根据经纬度搜索附近门店（站点）")
     @RequiresLogin
     @GetMapping("/nearbyStation/{latitude}/{longitude}")
-    public AjaxResult nearbyStation(@PathVariable String latitude,
-                                    @PathVariable String longitude) {
-        List<StationVo> stationVoList =
-                deviceService.nearbyStation(latitude, longitude);
+    public AjaxResult nearbyStation(@PathVariable String latitude, @PathVariable String longitude)
+    {
+        List<StationVo> stationVoList = deviceService.nearbyStation(latitude, longitude, DeviceConstants.SEARCH_H5_RADIUS);
+        if (CollectionUtils.isEmpty(stationVoList)) {
+            stationService.updateData();
+        }
         return success(stationVoList);
     }
+
 
     @Operation(summary = "根据id获取门店详情")
     @RequiresLogin

@@ -11,6 +11,9 @@
 
     <groupId>com.share.user</groupId>
     <artifactId>share-user</artifactId>
+    <description>
+        share-user会员模块
+    </description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

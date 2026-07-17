@@ -1,5 +1,6 @@
 package com.share.rule.api;
 
+import com.share.common.core.constant.ServiceNameConstants;
 import com.share.common.core.domain.R;
 import com.share.rule.domain.FeeRule;
 import com.share.rule.domain.FeeRuleRequestForm;
@@ -19,7 +20,7 @@ import java.util.List;
  * @author share
  */
 @FeignClient(contextId = "remoteFeeRuleService",
-        value = "share-rule",
+        value = ServiceNameConstants.RULE_SERVICE,
         fallbackFactory = RemoteFeeRuleFallbackFactory.class)
 public interface RemoteFeeRuleService
 {

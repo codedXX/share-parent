@@ -170,10 +170,19 @@ public class DeviceServiceImpl implements IDeviceService {
         //获取柜机id与柜机信息Map
         Map<Long, Cabinet> cabinetIdToCabinetMap = cabinetService.listByIds(cabinetIdList).stream().collect(Collectors.toMap(Cabinet::getId, Cabinet -> Cabinet));
 
+        //获取柜机id列表
+        List<Long> feeRuleIdList = stationList.stream().map(Station::getFeeRuleId).collect(Collectors.toList());
+        //获取柜机id与柜机信息Map
+//        Map<Long, FeeRule> feeRuleIdToFeeRuleMap = remoteFeeRuleService.getFeeRuleList(feeRuleIdList, SecurityConstants.INNER).getData().stream().collect(Collectors.toMap(FeeRule::getId, FeeRule -> FeeRule));
+        Map<Long, FeeRule> feeRuleIdToFeeRuleMap = remoteFeeRuleService.getFeeRuleList(feeRuleIdList).getData().stream().collect(Collectors.toMap(FeeRule::getId, FeeRule -> FeeRule));
+
         List<StationVo> stationVoList = new ArrayList<>();
         stationList.forEach(item -> {
             StationVo stationVo = new StationVo();
             BeanUtils.copyProperties(item, stationVo);
+            // 计算距离
+            Double distance = mapService.calculateDistance(longitude, latitude, item.getLongitude().toString(), item.getLatitude().toString());
+            stationVo.setDistance(distance);
 
             // 获取柜机信息
             Cabinet cabinet = cabinetIdToCabinetMap.get(item.getCabinetId());
@@ -190,23 +199,23 @@ public class DeviceServiceImpl implements IDeviceService {
                 stationVo.setIsReturn("0");
             }
 
+            // 获取费用规则
+            FeeRule feeRule = feeRuleIdToFeeRuleMap.get(item.getFeeRuleId());
+            stationVo.setFeeRule(feeRule.getDescription());
+
             stationVoList.add(stationVo);
         });
         return stationVoList;
     }
 
-
     //门店详情
     @Override
     public StationVo getStation(Long id, String latitude, String longitude) {
-        //根据门店id获取详情
         Station station = stationService.getById(id);
-        //封装到StationVo
         StationVo stationVo = new StationVo();
-        BeanUtils.copyProperties(station,stationVo);
-        //当前位置距离门店距离
-        Double distance = mapService.calculateDistance(longitude, latitude,
-                station.getLongitude().toString(), station.getLatitude().toString());
+        BeanUtils.copyProperties(station, stationVo);
+        // 计算距离
+        Double distance = mapService.calculateDistance(longitude, latitude, station.getLongitude().toString(), station.getLatitude().toString());
         stationVo.setDistance(distance);
 
         // 获取柜机信息
@@ -225,11 +234,9 @@ public class DeviceServiceImpl implements IDeviceService {
         }
 
         // 获取费用规则
-        FeeRule feeRule =
-                remoteFeeRuleService.getFeeRule(station.getFeeRuleId()).getData();
+//        FeeRule feeRule = remoteFeeRuleService.getFeeRule(station.getFeeRuleId(), SecurityConstants.INNER).getData();
+        FeeRule feeRule = remoteFeeRuleService.getFeeRule(station.getFeeRuleId()).getData();
         stationVo.setFeeRule(feeRule.getDescription());
-
-        //返回数据
         return stationVo;
     }
 
