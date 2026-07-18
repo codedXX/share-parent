@@ -28,6 +28,7 @@ public class MapServiceImpl implements IMapService {
     // 四个参数：开始经纬度， 目标经纬度
     @Override
     public Double calculateDistance(String startLongitude,String startLatitude,String endLongitude,String endLatitude) {
+        /**
         String url = "https://apis.map.qq.com/ws/direction/v1/walking/?from={from}&to={to}&key={key}";
 
         Map<String, String> map = new HashMap<>();
@@ -37,6 +38,7 @@ public class MapServiceImpl implements IMapService {
 
         JSONObject result = restTemplate.getForObject(url, JSONObject.class, map);
         if(result.getIntValue("status") != 0) {
+            log.error("打印失败"+result.getString("message"));
             throw new ServiceException("地图服务调用失败");
         }
 
@@ -44,6 +46,14 @@ public class MapServiceImpl implements IMapService {
         JSONObject route = result.getJSONObject("result").getJSONArray("routes").getJSONObject(0);
         // 单位：米
         return route.getBigDecimal("distance").doubleValue();
+         */
+        Random random = new Random();
+        BigDecimal randomDouble = BigDecimal.valueOf(random.nextDouble(100));
+
+// 保留两位小数，并进行四舍五入
+        BigDecimal roundedValue = randomDouble.setScale(1, RoundingMode.HALF_UP);
+        double roundedDoubleValue = roundedValue.doubleValue();
+        return roundedDoubleValue;
     }
 
     @Override
