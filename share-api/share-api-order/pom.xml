@@ -11,6 +11,10 @@
 
     <artifactId>share-api-order</artifactId>
 
+    <description>
+        share-api-order订单接口模块
+    </description>
+
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
