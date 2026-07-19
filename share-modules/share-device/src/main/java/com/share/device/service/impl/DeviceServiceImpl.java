@@ -273,7 +273,7 @@ public class DeviceServiceImpl implements IDeviceService {
         R<OrderInfo> orderInfoR = remoteOrderInfoService.getNoFinishOrder(SecurityUtils.getUserId());
         OrderInfo orderInfo = orderInfoR.getData();
         if(orderInfo != null) {//有 未完成订单
-            String status = userInfo.getStatus();
+            String status = orderInfo.getStatus();
             if("0".equals(status)) {
                 scanChargeVo.setStatus("2");
                 scanChargeVo.setMessage("有未归还充电宝，请归还后使用");
@@ -326,7 +326,7 @@ public class DeviceServiceImpl implements IDeviceService {
     @Autowired
     private IPowerBankService powerBankService;
 
-    //获取柜机的充电宝信息
+    //根据柜机编号获取一个可用最优的充电宝
     private AvailableProwerBankVo checkAvailableProwerBank(String cabinetNo) {
         //1 创建AvailableProwerBankVo对象
         AvailableProwerBankVo availableProwerBankVo = new AvailableProwerBankVo();
@@ -344,7 +344,7 @@ public class DeviceServiceImpl implements IDeviceService {
         //4 根据柜机id查询插槽列表，返回list集合
         LambdaQueryWrapper<CabinetSlot> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(CabinetSlot::getCabinetId,cabinet.getId());
-        wrapper.eq(CabinetSlot::getStatus, "1");
+        wrapper.eq(CabinetSlot::getStatus, "1");//状态（1：占用 0：空闲 2：锁定）
         List<CabinetSlot> cabinetSlotList = cabinetSlotService.list(wrapper);
 
         //5 从第四步返回插槽列表list集合 获取对应充电宝id集合

@@ -17,4 +17,6 @@ public interface IStationService extends IService<Station> {
     int setData(Station station);
 
     void updateData();
+
+    Station getByCabinetId(Long cabinetId);
 }
