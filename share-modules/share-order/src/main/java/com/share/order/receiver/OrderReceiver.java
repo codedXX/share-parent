@@ -34,27 +34,32 @@ public class OrderReceiver {
     //充电宝插入，接收消息结束订单
     @SneakyThrows
     @RabbitListener(bindings = @QueueBinding(
-            exchange = @Exchange(value = MqConst.EXCHANGE_ORDER,durable = "true"),
+            exchange = @Exchange(value = MqConst.EXCHANGE_ORDER, durable = "true"),
             value = @Queue(value = MqConst.QUEUE_END_ORDER, durable = "true"),
             key = MqConst.ROUTING_END_ORDER
     ))
-    public void endOrder(String content, Message message , Channel channel) {
+    public void endOrder(String content, Message message, Channel channel) {
+        log.info("[订单服务]归还充电宝消息：{}", content);
         EndOrderVo endOrderVo = JSONObject.parseObject(content, EndOrderVo.class);
-        //重复消费
         String messageNo = endOrderVo.getMessageNo();
-        String key = "order:endorder:"+messageNo;
-        Boolean ifAbsent = redisTemplate.opsForValue().setIfAbsent(key, messageNo, 1, TimeUnit.HOURS);
-        if(!ifAbsent) {
+        //防止重复请求
+        String key = "order:endOrder:" + messageNo;
+        boolean isExist = redisTemplate.opsForValue().setIfAbsent(key, messageNo, 1, TimeUnit.HOURS);
+        if (!isExist) {
+            log.info("重复请求: {}", content);
             return;
         }
+
         try {
-            //调用方法，结束订单
             orderInfoService.endOrder(endOrderVo);
-            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
-        } catch (IOException e) {
+
+            //手动应答
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            log.error("订单服务：订单归还失败，订单编号：{}", messageNo, e);
             redisTemplate.delete(key);
-            //消息重新回到队列
-            channel.basicNack(message.getMessageProperties().getDeliveryTag(),false,true);
+            // 消费异常，重新入队
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, true);
         }
     }
 
