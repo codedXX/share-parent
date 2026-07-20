@@ -4,6 +4,7 @@ import com.share.common.core.web.controller.BaseController;
 import com.share.common.core.web.domain.AjaxResult;
 import com.share.common.rabbit.constant.MqConst;
 import com.share.common.rabbit.service.RabbitService;
+import com.share.order.config.DeadLetterMqConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,16 @@ public class MqController extends BaseController
     public AjaxResult sendMessage()
     {
         rabbitService.sendMessage(MqConst.EXCHANGE_TEST, MqConst.ROUTING_TEST, "hello");
+        return success();
+    }
+
+    /**
+     * 消息发送延迟消息：基于死信实现
+     */
+    @Operation(summary = "发送延迟消息：基于死信实现")
+    @GetMapping("/sendDeadLetterMsg")
+    public AjaxResult sendDeadLetterMsg() {
+        rabbitService.sendMessage(DeadLetterMqConfig.exchange_dead, DeadLetterMqConfig.routing_dead_1, "我是延迟消息");
         return success();
     }
 

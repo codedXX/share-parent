@@ -8,6 +8,7 @@ import com.share.order.domain.EndOrderVo;
 import com.share.order.domain.SubmitOrderVo;
 import com.share.order.service.IOrderInfoService;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 public class OrderReceiver {
 
@@ -89,5 +91,37 @@ public class OrderReceiver {
         }
         //手动应答
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
+
+
+    @SneakyThrows
+    @RabbitListener(bindings = @QueueBinding(
+            exchange = @Exchange(value = MqConst.EXCHANGE_ORDER, durable = "true"),
+            value = @Queue(value = MqConst.QUEUE_SUBMIT_ORDER, durable = "true"),
+            key = MqConst.ROUTING_SUBMIT_ORDER
+    ))
+    public void submitOrder(String content, Message message, Channel channel) {
+        log.info("[订单服务]租借充电宝消息：{}", content);
+        SubmitOrderVo orderForm = JSONObject.parseObject(content, SubmitOrderVo.class);
+        String messageNo = orderForm.getMessageNo();
+        //防止重复请求
+        String key = "order:submit:" + messageNo;
+        boolean isExist = redisTemplate.opsForValue().setIfAbsent(key, messageNo, 1, TimeUnit.HOURS);
+        if (!isExist) {
+            log.info("重复请求: {}", content);
+            return;
+        }
+
+        try {
+            orderInfoService.saveOrder(orderForm);
+
+            //手动应答
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            log.error("订单服务：订单归还失败，订单编号：{}", messageNo, e);
+            redisTemplate.delete(key);
+            // 消费异常，重新入队
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, true);
+        }
     }
 }

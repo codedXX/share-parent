@@ -10,7 +10,7 @@ public class MqttDemo {
         String pubTopic = "testtopic/1";
         String content = "Hello World";
         int qos = 2;
-        String broker = "tcp://192.168.139.194:1883";
+        String broker = "tcp://localhost:1883";
         String clientId = "emqx_test";
         MemoryPersistence persistence = new MemoryPersistence();
 
