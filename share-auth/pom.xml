@@ -52,12 +52,6 @@
             <artifactId>share-common-security</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.share</groupId>
-            <artifactId>share-api-user</artifactId>
-            <version>3.6.3</version>
-        </dependency>
-
     </dependencies>
 
     <build>

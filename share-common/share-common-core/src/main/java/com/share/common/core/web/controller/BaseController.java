@@ -51,7 +51,8 @@ public class BaseController
     /**
      * 清理分页的线程变量
      */
-    protected void clearPage() {
+    protected void clearPage()
+    {
         PageUtils.clearPage();
     }
 
@@ -59,7 +60,8 @@ public class BaseController
      * 响应请求分页数据
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected TableDataInfo getDataTable(List<?> list) {
+    protected TableDataInfo getDataTable(List<?> list)
+    {
         TableDataInfo rspData = new TableDataInfo();
         rspData.setCode(HttpStatus.SUCCESS);
         rspData.setRows(list);
@@ -71,14 +73,16 @@ public class BaseController
     /**
      * 返回成功
      */
-    public AjaxResult success() {
+    public AjaxResult success()
+    {
         return AjaxResult.success();
     }
 
     /**
      * 返回成功消息
      */
-    public AjaxResult success(String message) {
+    public AjaxResult success(String message)
+    {
         return AjaxResult.success(message);
     }
 

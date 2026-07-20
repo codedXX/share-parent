@@ -28,14 +28,8 @@ public class HeaderInterceptor implements AsyncHandlerInterceptor
             return true;
         }
 
-        SecurityContextHolder
-                .setUserId(
-                        ServletUtils.getHeader(request, SecurityConstants.DETAILS_USER_ID));
-
-        SecurityContextHolder
-                .setUserName(
-                        ServletUtils.getHeader(request, SecurityConstants.DETAILS_USERNAME));
-
+        SecurityContextHolder.setUserId(ServletUtils.getHeader(request, SecurityConstants.DETAILS_USER_ID));
+        SecurityContextHolder.setUserName(ServletUtils.getHeader(request, SecurityConstants.DETAILS_USERNAME));
         SecurityContextHolder.setUserKey(ServletUtils.getHeader(request, SecurityConstants.USER_KEY));
 
         String token = SecurityUtils.getToken();
