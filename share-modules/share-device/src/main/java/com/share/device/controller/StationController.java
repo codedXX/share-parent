@@ -67,4 +67,13 @@ public class StationController extends BaseController
     {
         return toAjax(stationService.setData(station));
     }
+
+    @Operation(summary = "更新初始化数据")
+    @GetMapping("/updateData")
+    public AjaxResult updateData()
+    {
+        stationService.updateData();
+        return success();
+    }
+
 }
