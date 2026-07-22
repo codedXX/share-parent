@@ -20,6 +20,7 @@
         <module>share-job</module>
         <module>share-file</module>
         <module>share-device</module>
+        <module>share-rule</module>
     </modules>
 
     <artifactId>share-modules</artifactId>
