@@ -3,12 +3,15 @@ package com.share.rules.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.share.rules.domain.FeeRule;
+import com.share.rules.domain.FeeRuleRequestForm;
+import com.share.rules.domain.FeeRuleResponseVo;
 import com.share.rules.mapper.FeeRuleMapper;
 import com.share.rules.service.IFeeRuleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -17,6 +20,8 @@ public class FeeRuleServiceImpl extends ServiceImpl<FeeRuleMapper, FeeRule> impl
 {
     @Autowired
     private FeeRuleMapper feeRuleMapper;
+//    @Autowired
+//    private KieContainer kieContainer;
 
     
     @Override
@@ -29,5 +34,41 @@ public class FeeRuleServiceImpl extends ServiceImpl<FeeRuleMapper, FeeRule> impl
     public List<FeeRule> getALLFeeRuleList() {
         return feeRuleMapper.selectList(new LambdaQueryWrapper<FeeRule>().eq(FeeRule::getStatus, "1"));
     }
+
+    /**
+     *  //计算订单费用
+     *     @Override
+     *     public FeeRuleResponseVo calculateOrderFee(FeeRuleRequestForm feeRuleRequestForm) {
+     *         //1 开启会话
+     *         KieSession kieSession = kieContainer.newKieSession();
+     *
+     *         //2 创建传入数据对象 设置数据
+     *         FeeRuleRequest feeRuleRequest = new FeeRuleRequest();
+     *         feeRuleRequest.setDurations(feeRuleRequestForm.getDuration());
+     *
+     *         //3 创建返回数据对象
+     *         FeeRuleResponse feeRuleResponse = new FeeRuleResponse();
+     *         kieSession.setGlobal("feeRuleResponse", feeRuleResponse);
+     *
+     *         //4 对象传入到会话对象里面
+     *         kieSession.insert(feeRuleRequest);
+     *
+     *         //5 触发规则
+     *         kieSession.fireAllRules();
+     *
+     *         //6 中止会话
+     *         kieSession.dispose();
+     *
+     *         //7 封装返回需要数据
+     *         FeeRuleResponseVo feeRuleResponseVo = new FeeRuleResponseVo();
+     *         feeRuleResponseVo.setTotalAmount(new BigDecimal(feeRuleResponse.getTotalAmount()));
+     *         feeRuleResponseVo.setFreePrice(new BigDecimal(feeRuleResponse.getFreePrice()));
+     *         feeRuleResponseVo.setFreeDescription(feeRuleResponse.getFreeDescription());
+     *         feeRuleResponseVo.setExceedDescription(feeRuleResponse.getExceedDescription());
+     *         feeRuleResponseVo.setExceedPrice(new BigDecimal(feeRuleResponse.getExceedPrice()));
+     *
+     *         return feeRuleResponseVo;
+     *     }
+     */
 
 }

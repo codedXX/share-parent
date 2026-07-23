@@ -64,6 +64,12 @@
             <artifactId>share-common-log</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.share</groupId>
+            <artifactId>share-api-rule</artifactId>
+            <version>3.6.3</version>
+        </dependency>
+
     </dependencies>
 
     <build>
