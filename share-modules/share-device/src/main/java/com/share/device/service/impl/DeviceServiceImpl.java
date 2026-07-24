@@ -1,14 +1,19 @@
 package com.share.device.service.impl;
 
 
+import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.share.device.domain.Cabinet;
-import com.share.device.domain.Station;
-import com.share.device.domain.StationLocation;
-import com.share.device.domain.StationVo;
+import com.share.common.core.constant.SecurityConstants;
+import com.share.common.core.context.SecurityContextHolder;
+import com.share.common.core.exception.ServiceException;
+import com.share.common.security.utils.SecurityUtils;
+import com.share.device.domain.*;
 import com.share.device.service.ICabinetService;
 import com.share.device.service.IDeviceService;
+import com.share.device.service.IMapService;
 import com.share.device.service.IStationService;
+import com.share.rules.api.RemoteFeeRuleService;
+import com.share.rules.domain.FeeRule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +40,10 @@ public class DeviceServiceImpl implements IDeviceService {
 
     @Autowired
     private ICabinetService cabinetService;
+    @Autowired
+    private IMapService mapService;
+    @Autowired
+    private RemoteFeeRuleService remoteFeeRuleService;
 
 
     @Autowired
@@ -106,6 +115,37 @@ public class DeviceServiceImpl implements IDeviceService {
          * - isReturn = "1"：柜机还有空闲插槽，用户可以还（插回去）
          */
         return stationVoList;
+    }
+
+
+    @Override
+    public StationVo getStation(Long id, String latitude, String longitude) {
+        Station station = stationService.getById(id);
+        StationVo stationVo = new StationVo();
+        BeanUtils.copyProperties(station, stationVo);
+        // 计算距离
+        Double distance = mapService.calculateDistance(longitude, latitude, station.getLongitude().toString(), station.getLatitude().toString());
+        stationVo.setDistance(distance);
+
+        // 获取柜机信息
+        Cabinet cabinet = cabinetService.getById(station.getCabinetId());
+        //可用充电宝数量大于0，可借用
+        if(cabinet.getAvailableNum() > 0) {
+            stationVo.setIsUsable("1");
+        } else {
+            stationVo.setIsUsable("0");
+        }
+        // 获取空闲插槽数量大于0，可归还
+        if (cabinet.getFreeSlots() > 0) {
+            stationVo.setIsReturn("1");
+        } else {
+            stationVo.setIsReturn("0");
+        }
+
+        // 获取费用规则
+        FeeRule feeRule = remoteFeeRuleService.getFeeRule(station.getFeeRuleId()).getData();
+        stationVo.setFeeRule(feeRule.getDescription());
+        return stationVo;
     }
 
 }
